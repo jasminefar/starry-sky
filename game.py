@@ -1,6 +1,7 @@
 import turtle
 import random
 import threading
+import time
 
 # Set up the screen
 screen = turtle.Screen()
