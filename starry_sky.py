@@ -21,7 +21,7 @@ class StarryNight:
         self.screen.listen()
         self.screen.onkey(self.toggle_twinkling, "space")
 
-        self.shooting_star_manager = ShootingStarManager(self.screen, self.twinkle_manager.twinkle_thread)
+        self.shooting_star_manager = ShootingStarManager(self.screen, self)
         self.shooting_star_manager.start_shooting()
 
         turtle.done()
@@ -86,26 +86,28 @@ class TwinkleManager:
         self.twinkle_thread = None
         
     def twinkle_stars(self):
-        while True:
+        while self.twinkle_thread:
             x = random.randint(-300, 300)
             y = random.randint(-300, 300)
             size = random.randint(10, 20)
             color = random.choice(["white", "light gray", "light yellow", "black"])
             star = Star(x, y, size, color)
             star.draw()
+            time.sleep(0.1)
 
 class ShootingStarManager:
-    def __init__(self, screen: ScreenType, twinkling_thread: Thread | None):
+    def __init__(self, screen: ScreenType, starry_night: StarryNight):
         self.screen = screen
+        self.starry_night = starry_night
         self.shooting_star_thread = Thread(target=self.shooting_star)
-        self.twinkling_thread = twinkling_thread
             
     def start_shooting(self):
         self.shooting_star_thread.start()
         
     def shooting_star(self):
         while True:
-            self.draw_shooting_star()
+            if self.starry_night.twinkling:
+                self.draw_shooting_star()
             time.sleep(5)
 
     def draw_shooting_star(self):
@@ -121,7 +123,7 @@ class ShootingStarManager:
         for _ in range(20):
             star.forward(10)
             star.right(15)
-            if not self.twinkling_thread or not self.twinkling_thread.is_alive():
+            if not self.starry_night.twinkling:
                 break
             
         star.hideturtle()
